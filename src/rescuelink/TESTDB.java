@@ -24,26 +24,38 @@ public class TESTDB {
                     String name = rs1.getString("name");
                     String location = rs1.getString("location");
                     String phone = rs1.getString("phone_no");
+                    String availability = rs1.getString("availability");
                     String skill = rs1.getString("skill");
+                    int points = rs1.getInt("reward_points");
+                    int attended = rs1.getInt("attended_requests");
 
-                    System.out.println(id + " | " + name + " | " + location + " | " + phone + " | " + skill);
+                    System.out.println(id + " | " + name + " | " + location + " | " + phone 
+                            + " | " + availability + " | " + skill 
+                            + " | Points: " + points + " | Requests: " + attended);
                 }
 
-                // =====================
-                // 2) Display Request Data
-                // =====================
-                System.out.println("\n--- Request Table ---");
-                ResultSet rs2 = stmt.executeQuery("SELECT * FROM request");
+                // =======================
+                // 2) Display Victims Data
+                // =======================
+                System.out.println("\n--- Victims Table ---");
+                ResultSet rs2 = stmt.executeQuery("SELECT * FROM victims");
 
                 while (rs2.next()) {
-                    int reqNo = rs2.getInt("request_no");
-                    String userName = rs2.getString("user_name");
-                    String location = rs2.getString("location");
-                    String disaster = rs2.getString("disaster_type");
-                    String conditions = rs2.getString("rescue_needed_conditions");
-                    String status = rs2.getString("status");
+                    int vid = rs2.getInt("victim_id");
+                    String vname = rs2.getString("name");
+                    String vlocation = rs2.getString("location");
+                    String vcondition = rs2.getString("condition"); // escaped in SQL
+                    String incident = rs2.getString("incident_type");
+                    String severity = rs2.getString("severity");
+                    int people = rs2.getInt("people_affected");
+                    boolean immediate = rs2.getBoolean("immediate_rescue");
+                    String reportedAt = rs2.getString("reported_at");
 
-                    System.out.println(reqNo + " | " + userName + " | " + location + " | " + disaster + " | " + conditions + " | " + status);
+                    System.out.println(vid + " | " + vname + " | " + vlocation + " | " + vcondition
+                            + " | " + incident + " | " + severity 
+                            + " | People: " + people 
+                            + " | Immediate: " + immediate 
+                            + " | Reported: " + reportedAt);
                 }
 
             } catch (Exception e) {
