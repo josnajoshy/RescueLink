@@ -2,6 +2,7 @@ package rescuelink;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class TESTDB {
@@ -58,8 +59,7 @@ public class TESTDB {
                             + " | Reported: " + reportedAt);
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (SQLException e) {
             }
         } else {
             System.out.println("❌ Connection failed.");
