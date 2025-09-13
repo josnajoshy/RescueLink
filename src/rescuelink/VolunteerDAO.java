@@ -89,4 +89,19 @@ public class VolunteerDAO {
 
         return badges;
     }
+    public String getAssignmentStatus(int volunteerId) {
+    String status = "No assignment";
+    String query = "SELECT status FROM Assignment WHERE volunteer = ? ORDER BY id DESC LIMIT 1";
+
+    try (PreparedStatement pst = con.prepareStatement(query)) {
+        pst.setInt(1, volunteerId);
+        ResultSet rs = pst.executeQuery();
+        if (rs.next()) {
+            status = rs.getString("status");
+        }
+    } catch (SQLException e) {
+        System.err.println("SQL Error: " + e.getMessage());
+    }
+    return status;
+}
 }
