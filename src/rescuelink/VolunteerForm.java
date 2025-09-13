@@ -10,15 +10,16 @@ public class VolunteerForm extends JFrame {
     private final JButton registerButton;
     private final JButton viewAlertsButton;
     private final JButton reportCompletionButton;
+    private final JButton checkStatusButton;
     private final JLabel statusLabel;
 
     public VolunteerForm() {
         setTitle("Volunteer Registration");
-        setSize(450, 400);
+        setSize(500, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(9, 2, 10, 10));
 
         panel.add(new JLabel("Name:"));
         nameField = new JTextField();
@@ -43,11 +44,13 @@ public class VolunteerForm extends JFrame {
         registerButton = new JButton("Register");
         viewAlertsButton = new JButton("View Alerts");
         reportCompletionButton = new JButton("Report Rescue Completion");
+        checkStatusButton = new JButton("Check Assignment Status");
         statusLabel = new JLabel("Status: Active");
 
         panel.add(registerButton);
         panel.add(viewAlertsButton);
         panel.add(reportCompletionButton);
+        panel.add(checkStatusButton);
         panel.add(statusLabel);
 
         add(panel);
@@ -120,7 +123,7 @@ public class VolunteerForm extends JFrame {
             }
         });
 
-        // Report rescue completion (admin will verify)
+        // Report rescue completion
         reportCompletionButton.addActionListener(e -> {
             String phone = phoneField.getText().trim();
             String assignmentId = JOptionPane.showInputDialog("Enter Assignment ID:");
@@ -152,6 +155,29 @@ public class VolunteerForm extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(null, "Failed to send report.");
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "Volunteer not found. Please register first.");
+            }
+        });
+
+        // Check assignment status
+        checkStatusButton.addActionListener(e -> {
+            String phone = phoneField.getText().trim();
+            if (phone.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Enter phone number to check status.");
+                return;
+            }
+
+            VolunteerDAO dao = new VolunteerDAO();
+            List<Volunteer> volunteers = dao.getVolunteerList();
+            Volunteer matched = volunteers.stream()
+                .filter(v -> v.getPhoneNo().equals(phone))
+                .findFirst()
+                .orElse(null);
+
+            if (matched != null) {
+                String status = dao.getAssignmentStatus(matched.getId()); // Add this method in VolunteerDAO
+                JOptionPane.showMessageDialog(null, "Current Assignment Status: " + status);
             } else {
                 JOptionPane.showMessageDialog(null, "Volunteer not found. Please register first.");
             }
