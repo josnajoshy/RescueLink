@@ -2,7 +2,6 @@ package rescuelink;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class VolunteerForm extends JFrame {
@@ -12,11 +11,6 @@ public class VolunteerForm extends JFrame {
     private final JButton viewAlertsButton;
     private final JButton reportCompletionButton;
     private final JLabel statusLabel;
-
-    // Virtual gamified fields
-    private int virtualPoints = 0;
-    private final List<String> virtualBadges = new ArrayList<>();
-    private boolean rescueReported = false;
 
     public VolunteerForm() {
         setTitle("Volunteer Registration");
@@ -58,6 +52,7 @@ public class VolunteerForm extends JFrame {
 
         add(panel);
 
+        // Register volunteer
         registerButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             String location = locationField.getText().trim();
@@ -82,6 +77,7 @@ public class VolunteerForm extends JFrame {
             }
         });
 
+        // View alerts and badges
         viewAlertsButton.addActionListener(e -> {
             String phone = phoneField.getText().trim();
             if (phone.isEmpty()) {
@@ -101,25 +97,30 @@ public class VolunteerForm extends JFrame {
                 AlertDAO alertDAO = new AlertDAO();
                 List<Alert> alerts = alertDAO.getAlertsForUser(matched);
 
+                StringBuilder sb = new StringBuilder();
                 if (alerts.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "No alerts found.");
+                    sb.append("No alerts found.\n");
                 } else {
-                    StringBuilder sb = new StringBuilder("Alerts:\n\n");
+                    sb.append("Alerts:\n\n");
                     for (Alert alert : alerts) {
                         sb.append(alert.getMessage()).append("\n---\n");
                     }
-
-                    String badgeList = String.join(", ", virtualBadges);
-                    sb.append("\nPoints: ").append(virtualPoints);
-                    sb.append("\nBadges: ").append(badgeList.isEmpty() ? "None" : badgeList);
-
-                    JOptionPane.showMessageDialog(null, sb.toString());
                 }
+
+                sb.append("\nReward Points: ").append(matched.getRewardPoints());
+                sb.append("\nAttended Requests: ").append(matched.getAttendedRequests());
+                sb.append("\nBadges:\n");
+                for (Badge badge : matched.getBadges()) {
+                    sb.append("- ").append(badge.getName()).append(": ").append(badge.getDescription()).append("\n");
+                }
+
+                JOptionPane.showMessageDialog(null, sb.toString());
             } else {
                 JOptionPane.showMessageDialog(null, "Volunteer not found. Please register first.");
             }
         });
 
+        // Report rescue completion (admin will verify)
         reportCompletionButton.addActionListener(e -> {
             String phone = phoneField.getText().trim();
             String assignmentId = JOptionPane.showInputDialog("Enter Assignment ID:");
@@ -146,18 +147,8 @@ public class VolunteerForm extends JFrame {
                 boolean sent = alertDAO.sendAlert(alert);
 
                 if (sent) {
-                    rescueReported = true;
                     statusLabel.setText("Status: Rescue reported (pending admin verification)");
-
-                    virtualPoints += 10;
-                    if (!virtualBadges.contains("Rescue Hero")) {
-                        virtualBadges.add("Rescue Hero");
-
-                        Alert badgeAlert = new Alert(matched, "You've earned a new badge: Rescue Hero.");
-                        alertDAO.sendAlert(badgeAlert);
-                    }
-
-                    JOptionPane.showMessageDialog(null, "Rescue report submitted. Admin will verify and update your status.");
+                    JOptionPane.showMessageDialog(null, "Rescue report submitted. Admin will verify and assign rewards.");
                 } else {
                     JOptionPane.showMessageDialog(null, "Failed to send report.");
                 }
@@ -174,7 +165,6 @@ public class VolunteerForm extends JFrame {
         skillField.setText("");
         availabilityBox.setSelected(false);
         statusLabel.setText("Status: Active");
-        rescueReported = false;
     }
 
     public static void main(String[] args) {
