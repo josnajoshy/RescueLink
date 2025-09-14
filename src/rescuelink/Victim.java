@@ -17,7 +17,7 @@ public class Victim extends User {
         this.peopleAffected = peopleAffected;
         this.immediateRescue = immediateRescue;
         this.status = "Pending"; // default status when victim is reported
-    }
+    }//Add phone no.
 
     // --- Getters ---
     public String getCondition() {
