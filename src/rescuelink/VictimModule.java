@@ -3,17 +3,12 @@ package rescuelink;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class VictimModule {
+public class VictimDAO {
     private final Connection con;
 
-    public VictimModule() {
+    public VictimDAO() {
         con = DBCONNECT.ConnectToDB();
     }
-
-    /**
-     * Add a new victim report (victim side)
-     * @param victim
-     */
     public void addVictim(Victim victim) {
         try {
             String sql = "INSERT INTO victims " +
@@ -39,11 +34,6 @@ public class VictimModule {
         } catch (SQLException e) {
         }
     }
-
-    /**
-     * Fetch all victims (for Admin dashboard)
-     * @return 
-     */
     public ArrayList<Victim> getAllVictims() {
         ArrayList<Victim> victims = new ArrayList<>();
         try {
