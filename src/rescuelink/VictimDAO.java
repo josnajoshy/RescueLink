@@ -3,10 +3,10 @@ package rescuelink;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class VictimModule {
+public class VictimDAO {
     private final Connection con;
 
-    public VictimModule() {
+    public VictimDAO() {
         con = DBCONNECT.ConnectToDB();
     }
     public void addVictim(Victim victim) {
