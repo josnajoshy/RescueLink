@@ -55,7 +55,7 @@ public class VolunteerForm extends JFrame {
 
         add(panel);
 
-        // Register volunteer
+        // ✅ Register volunteer
         registerButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             String location = locationField.getText().trim();
@@ -80,7 +80,7 @@ public class VolunteerForm extends JFrame {
             }
         });
 
-        // View alerts and badges
+        // ✅ View alerts and badges
         viewAlertsButton.addActionListener(e -> {
             String phone = phoneField.getText().trim();
             if (phone.isEmpty()) {
@@ -92,9 +92,9 @@ public class VolunteerForm extends JFrame {
             List<Volunteer> volunteers = dao.getVolunteerList();
 
             Volunteer matched = volunteers.stream()
-                .filter(v -> v.getPhoneNo().equals(phone))
-                .findFirst()
-                .orElse(null);
+                    .filter(v -> v.getPhoneNo().equals(phone))
+                    .findFirst()
+                    .orElse(null);
 
             if (matched != null) {
                 AlertDAO alertDAO = new AlertDAO();
@@ -114,7 +114,8 @@ public class VolunteerForm extends JFrame {
                 sb.append("\nAttended Requests: ").append(matched.getAttendedRequests());
                 sb.append("\nBadges:\n");
                 for (Badge badge : matched.getBadges()) {
-                    sb.append("- ").append(badge.getName()).append(": ").append(badge.getDescription()).append("\n");
+                    sb.append("- ").append(badge.getName())
+                            .append(": ").append(badge.getDescription()).append("\n");
                 }
 
                 JOptionPane.showMessageDialog(null, sb.toString());
@@ -123,7 +124,7 @@ public class VolunteerForm extends JFrame {
             }
         });
 
-        // Report rescue completion
+        // ✅ Report rescue completion
         reportCompletionButton.addActionListener(e -> {
             String phone = phoneField.getText().trim();
             String assignmentId = JOptionPane.showInputDialog("Enter Assignment ID:");
@@ -132,21 +133,21 @@ public class VolunteerForm extends JFrame {
             VolunteerDAO dao = new VolunteerDAO();
             List<Volunteer> volunteers = dao.getVolunteerList();
             Volunteer matched = volunteers.stream()
-                .filter(v -> v.getPhoneNo().equals(phone))
-                .findFirst()
-                .orElse(null);
+                    .filter(v -> v.getPhoneNo().equals(phone))
+                    .findFirst()
+                    .orElse(null);
 
             if (matched != null) {
                 String adminMessage = """
-                    Rescue Completion Report Received:
-                    Volunteer: %s
-                    Assignment ID: %s
-                    Outcome: %s
-                    """.formatted(matched.getName(), assignmentId, outcome);
+                        Rescue Completion Report Received:
+                        Volunteer: %s
+                        Assignment ID: %s
+                        Outcome: %s
+                        """.formatted(matched.getName(), assignmentId, outcome);
 
-                Victim adminRecipient = new Victim(0, "Admin", "HQ", "Admin Inbox", "Other", "Mild", 0, false, "Pending");
+                // ✅ No need for Victim + rs.getString("status")
                 AlertDAO alertDAO = new AlertDAO();
-                Alert alert = new Alert(adminRecipient, adminMessage);
+                Alert alert = new Alert(matched, adminMessage); // send alert as volunteer
                 boolean sent = alertDAO.sendAlert(alert);
 
                 if (sent) {
@@ -160,7 +161,7 @@ public class VolunteerForm extends JFrame {
             }
         });
 
-        // Check assignment status
+        // ✅ Check assignment status
         checkStatusButton.addActionListener(e -> {
             String phone = phoneField.getText().trim();
             if (phone.isEmpty()) {
@@ -171,12 +172,12 @@ public class VolunteerForm extends JFrame {
             VolunteerDAO dao = new VolunteerDAO();
             List<Volunteer> volunteers = dao.getVolunteerList();
             Volunteer matched = volunteers.stream()
-                .filter(v -> v.getPhoneNo().equals(phone))
-                .findFirst()
-                .orElse(null);
+                    .filter(v -> v.getPhoneNo().equals(phone))
+                    .findFirst()
+                    .orElse(null);
 
             if (matched != null) {
-                String status = dao.getAssignmentStatus(matched.getId()); // Add this method in VolunteerDAO
+                String status = dao.getAssignmentStatus(matched.getId()); // must be implemented in VolunteerDAO
                 JOptionPane.showMessageDialog(null, "Current Assignment Status: " + status);
             } else {
                 JOptionPane.showMessageDialog(null, "Volunteer not found. Please register first.");

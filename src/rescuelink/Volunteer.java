@@ -101,4 +101,8 @@ public class Volunteer extends User {
     public String toString() {
         return getName() + " (" + phoneNo + ")";
     }
+
+    int getVolunteerId() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

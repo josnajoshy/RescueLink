@@ -2,18 +2,25 @@ package rescuelink;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class VictimGUI extends JFrame {
 
-    private JTextField nameField, locationField, conditionField, peopleField;
-    private JComboBox<String> incidentCombo, severityCombo;
-    private JCheckBox immediateCheck;
-    private JButton reportButton, alertsButton;
+    private final JTextField nameField;
+    private final JTextField locationField;
 
-    private VictimModule vm;
+    private final JTextField conditionField;
+    private final JTextField peopleField;
+    private final JComboBox<String> incidentCombo;
+    private final JComboBox<String> severityCombo;
+    private final JCheckBox immediateCheck;
+    private final JButton reportButton;
+    private final JButton alertsButton;
+
+    private final VictimModule vm;
     private Victim lastReportedVictim; // store latest victim for alerts
 
-    public VictimGUI() {
+    public VictimGUI() throws SQLException {
         vm = new VictimModule();
 
         setTitle("Report Victim Incident");
@@ -100,10 +107,20 @@ public class VictimGUI extends JFrame {
         // Default status = "Pending"
         String status = "Pending";
 
-        // Create victim and save to DB
-        Victim v = new Victim(0, name, location, condition, incident, severity, peopleAffected, immediate, status);
-        vm.addVictim(v);
+        // ✅ Create victim with actual form values
+        Victim v = new Victim(
+                0,              // victim_id (auto-increment, so pass 0 or ignore in DAO)
+                name,
+                location,
+                condition,
+                incident,
+                severity,
+                peopleAffected,
+                immediate,
+                status
+        );
 
+        vm.addVictim(v);
         lastReportedVictim = v; // save for alerts panel
 
         JOptionPane.showMessageDialog(this, "Incident reported successfully!");
@@ -130,6 +147,12 @@ public class VictimGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VictimGUI().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new VictimGUI().setVisible(true);
+            } catch (SQLException ex) {
+                System.getLogger(VictimGUI.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
     }
 }

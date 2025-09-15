@@ -1,8 +1,5 @@
 
 package rescuelink;
-
-
-
 import java.time.LocalDateTime;
 public class AssignmentService {
     private final AssignmentDAO assignmentDAO;
