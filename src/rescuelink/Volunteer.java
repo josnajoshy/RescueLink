@@ -102,7 +102,9 @@ public class Volunteer extends User {
         return getName() + " (" + phoneNo + ")";
     }
 
-    int getVolunteerId() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    // ✅ FIXED: Proper implementation instead of throwing exception
+    public int getVolunteerId() {
+        return getId(); // uses the id from User (superclass)
     }
 }
+

@@ -1,6 +1,5 @@
-
 package rescuelink;
-import java.time.LocalDateTime;
+
 public class AssignmentService {
     private final AssignmentDAO assignmentDAO;
     private final AlertDAO alertDAO;
@@ -16,32 +15,30 @@ public class AssignmentService {
         boolean assigned = assignmentDAO.assignVolunteerToVictim(volunteer, victim);
         if (!assigned) return false;
 
-        // Step 2: Generate full alert for volunteer
-        String volunteerMessage = """
-                You have been assigned to a victim.
-                Victim Name: %s
-                Location: %s
-                Condition: %s
-                Number of people involved: %d
-                """.formatted(
+        // Step 2: Generate alert for volunteer
+        String volunteerMessage = String.format(
+                "You have been assigned to a victim.\n" +
+                "Victim Name: %s\n" +
+                "Location: %s\n" +
+                "Condition: %s\n" +
+                "Number of people involved: %d",
                 victim.getName(),
                 victim.getLocation(),
                 victim.getCondition(),
-                victim.getPeopleCount()
+                victim.getPeopleAffected()   // ✅ corrected
         );
 
         Alert volunteerAlert = new Alert(volunteer, volunteerMessage);
         alertDAO.sendAlert(volunteerAlert);
 
-        // Step 3: Generate full alert for victim
-        String victimMessage = """
-                A volunteer has been assigned to help you.
-                Volunteer Name: %s
-                Location: %s
-                Phone: %s
-                Skill: %s
-                Availability: %s
-                """.formatted(
+        // Step 3: Generate alert for victim
+        String victimMessage = String.format(
+                "A volunteer has been assigned to help you.\n" +
+                "Volunteer Name: %s\n" +
+                "Location: %s\n" +
+                "Phone: %s\n" +
+                "Skill: %s\n" +
+                "Availability: %s",
                 volunteer.getName(),
                 volunteer.getLocation(),
                 volunteer.getPhoneNo(),

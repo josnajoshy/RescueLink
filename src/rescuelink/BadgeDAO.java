@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BadgeDAO {
-    private final Connection con;
+    private Connection con;
 
     public BadgeDAO() {
-        con = DBCONNECT.ConnectToDB();
+        try {
+            con = DBCONNECT.ConnectToDB(); // ✅ handle SQLException
+        } catch (SQLException e) {
+            System.err.println("❌ Database connection failed in BadgeDAO: " + e.getMessage());
+        }
     }
 
     // Fetch all badge definitions from the database
@@ -29,15 +33,13 @@ public class BadgeDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("SQL Error: " + e.getMessage());
-            System.err.println("SQL State: " + e.getSQLState());
-            System.err.println("Error Code: " + e.getErrorCode());
+            System.err.println("❌ SQL Error in getAllBadges(): " + e.getMessage());
         }
 
         return badges;
     }
 
-    // Optional: Add a new badge to the system
+    // Add a new badge
     public boolean addBadge(Badge badge) {
         String query = "INSERT INTO badges (name, description) VALUES (?, ?)";
 
@@ -47,7 +49,7 @@ public class BadgeDAO {
             return pst.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("SQL Error: " + e.getMessage());
+            System.err.println("❌ SQL Error in addBadge(): " + e.getMessage());
             return false;
         }
     }

@@ -5,7 +5,8 @@ import java.awt.*;
 import java.util.List;
 
 public class VolunteerForm extends JFrame {
-    private JTextField nameField, locationField, phoneField, skillField;
+    private JTextField nameField, locationField, phoneField;
+    private JComboBox<String> skillDropdown; // ✅ Changed from JTextField to JComboBox
     private JCheckBox availabilityBox;
     private final JButton registerButton;
     private final JButton viewAlertsButton;
@@ -34,8 +35,14 @@ public class VolunteerForm extends JFrame {
         panel.add(phoneField);
 
         panel.add(new JLabel("Skill:"));
-        skillField = new JTextField();
-        panel.add(skillField);
+        skillDropdown = new JComboBox<>(new String[]{
+                "First Aid",
+                "Rescue Ops",
+                "Medical Support",
+                "Food Distribution",
+                "Shelter Management"
+        });
+        panel.add(skillDropdown);
 
         panel.add(new JLabel("Available:"));
         availabilityBox = new JCheckBox();
@@ -60,10 +67,10 @@ public class VolunteerForm extends JFrame {
             String name = nameField.getText().trim();
             String location = locationField.getText().trim();
             String phone = phoneField.getText().trim();
-            String skill = skillField.getText().trim();
+            String skill = (String) skillDropdown.getSelectedItem(); // ✅ from dropdown
             boolean available = availabilityBox.isSelected();
 
-            if (name.isEmpty() || location.isEmpty() || phone.isEmpty() || skill.isEmpty()) {
+            if (name.isEmpty() || location.isEmpty() || phone.isEmpty() || skill == null) {
                 JOptionPane.showMessageDialog(null, "Please fill all fields.");
                 return;
             }
@@ -145,9 +152,8 @@ public class VolunteerForm extends JFrame {
                         Outcome: %s
                         """.formatted(matched.getName(), assignmentId, outcome);
 
-                // ✅ No need for Victim + rs.getString("status")
                 AlertDAO alertDAO = new AlertDAO();
-                Alert alert = new Alert(matched, adminMessage); // send alert as volunteer
+                Alert alert = new Alert(matched, adminMessage); 
                 boolean sent = alertDAO.sendAlert(alert);
 
                 if (sent) {
@@ -177,7 +183,7 @@ public class VolunteerForm extends JFrame {
                     .orElse(null);
 
             if (matched != null) {
-                String status = dao.getAssignmentStatus(matched.getId()); // must be implemented in VolunteerDAO
+                String status = dao.getAssignmentStatus(matched.getId());
                 JOptionPane.showMessageDialog(null, "Current Assignment Status: " + status);
             } else {
                 JOptionPane.showMessageDialog(null, "Volunteer not found. Please register first.");
@@ -189,7 +195,7 @@ public class VolunteerForm extends JFrame {
         nameField.setText("");
         locationField.setText("");
         phoneField.setText("");
-        skillField.setText("");
+        skillDropdown.setSelectedIndex(0); // reset to default
         availabilityBox.setSelected(false);
         statusLabel.setText("Status: Active");
     }

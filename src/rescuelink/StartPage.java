@@ -2,6 +2,7 @@ package rescuelink;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class StartPage extends JFrame {
 
@@ -36,7 +37,11 @@ public class StartPage extends JFrame {
 
         // Actions
         victimBtn.addActionListener(e -> {
-            new VictimGUI().setVisible(true);
+            try {
+                new VictimGUI().setVisible(true);
+            } catch (SQLException ex) {
+                System.getLogger(StartPage.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
             dispose();
         });
 

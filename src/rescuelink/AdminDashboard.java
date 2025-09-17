@@ -1,10 +1,9 @@
-
-
 package rescuelink;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.List;
 
 public class AdminDashboard extends JFrame {
@@ -23,19 +22,18 @@ public class AdminDashboard extends JFrame {
         tabbedPane = new JTabbedPane();
 
         // Victim Tab
-        victimModel = new DefaultTableModel();
+        victimModel = new DefaultTableModel(new Object[]{
+                "ID", "Name", "Location", "Condition", "Incident Type",
+                "Severity", "People Affected", "Immediate Rescue", "Status"
+        }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // make table non-editable
+            }
+        };
+
         victimTable = new JTable(victimModel);
         JScrollPane victimScroll = new JScrollPane(victimTable);
-
-        victimModel.addColumn("ID");
-        victimModel.addColumn("Name");
-        victimModel.addColumn("Location");
-        victimModel.addColumn("Condition");
-        victimModel.addColumn("Incident Type");
-        victimModel.addColumn("Severity");
-        victimModel.addColumn("People Affected");
-        victimModel.addColumn("Immediate Rescue");
-        victimModel.addColumn("Status");
 
         JButton updateVictimBtn = new JButton("Update Victim Status");
         updateVictimBtn.addActionListener(e -> updateVictimStatus());
@@ -47,16 +45,17 @@ public class AdminDashboard extends JFrame {
         tabbedPane.addTab("Victims", victimPanel);
 
         // Volunteer Tab
-        volunteerModel = new DefaultTableModel();
+        volunteerModel = new DefaultTableModel(new Object[]{
+                "ID", "Name", "Location", "Phone", "Skill", "Availability"
+        }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // non-editable
+            }
+        };
+
         volunteerTable = new JTable(volunteerModel);
         JScrollPane volunteerScroll = new JScrollPane(volunteerTable);
-
-        volunteerModel.addColumn("ID");
-        volunteerModel.addColumn("Name");
-        volunteerModel.addColumn("Location");
-        volunteerModel.addColumn("Phone");
-        volunteerModel.addColumn("Skill");
-        volunteerModel.addColumn("Availability");
 
         JButton updateVolunteerBtn = new JButton("Update Volunteer Availability");
         updateVolunteerBtn.addActionListener(e -> updateVolunteerAvailability());
@@ -75,24 +74,30 @@ public class AdminDashboard extends JFrame {
     }
 
     private void loadVictims() {
-        victimModel.setRowCount(0);
+    victimModel.setRowCount(0);
+    try {
         VictimModule vm = new VictimModule();
         List<Victim> victims = vm.getAllVictims();
 
         for (Victim v : victims) {
             victimModel.addRow(new Object[]{
-                v.getId(),
-                v.getName(),
-                v.getLocation(),
-                v.getCondition(),
-                v.getIncidentType(),
-                v.getSeverity(),
-                v.getPeopleAffected(),
-                v.isImmediateRescue() ? "Yes" : "No",
-                v.getStatus()
+                    v.getId(),
+                    v.getName(),
+                    v.getLocation(),
+                    v.getCondition(),
+                    v.getIncidentType(),
+                    v.getSeverity(),
+                    v.getPeopleAffected(),
+                    v.isImmediateRescue() ? "Yes" : "No",
+                    v.getStatus()
             });
         }
+        vm.closeConnection();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error loading victims: " + e.getMessage());
     }
+}
+
 
     private void loadVolunteers() {
         volunteerModel.setRowCount(0);
@@ -101,12 +106,12 @@ public class AdminDashboard extends JFrame {
 
         for (Volunteer v : volunteers) {
             volunteerModel.addRow(new Object[]{
-                v.getVolunteerId(),
-                v.getName(),
-                v.getLocation(),
-                v.getPhoneNo(),
-                v.getSkill(),
-                v.isAvailability() ? "Yes" : "No"
+                    v.getVolunteerId(),
+                    v.getName(),
+                    v.getLocation(),
+                    v.getPhoneNo(),
+                    v.getSkill(),
+                    v.isAvailability() ? "Yes" : "No"
             });
         }
     }
@@ -118,22 +123,27 @@ public class AdminDashboard extends JFrame {
             return;
         }
 
-        int id = (int) victimModel.getValueAt(row, 0);
+        int id = Integer.parseInt(victimModel.getValueAt(row, 0).toString());
         String[] statuses = {"Pending", "In Progress", "Rescued"};
         String newStatus = (String) JOptionPane.showInputDialog(
                 this, "Select new status:", "Update Victim Status",
                 JOptionPane.QUESTION_MESSAGE, null, statuses, statuses[0]);
 
         if (newStatus != null) {
-            VictimModule vm = new VictimModule();
-            boolean success = vm.updateVictimStatus(id, newStatus);
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Victim status updated!");
-                loadVictims();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to update status.");
-            }
+    try {
+        VictimModule vm = new VictimModule();
+        boolean success = vm.updateVictimStatus(id, newStatus);
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Victim status updated!");
+            loadVictims();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update status.");
         }
+        vm.closeConnection();
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage());
+    }
+}
     }
 
     private void updateVolunteerAvailability() {
@@ -143,7 +153,7 @@ public class AdminDashboard extends JFrame {
             return;
         }
 
-        int id = (int) volunteerModel.getValueAt(row, 0);
+        int id = Integer.parseInt(volunteerModel.getValueAt(row, 0).toString());
         String[] options = {"Yes", "No"};
         String choice = (String) JOptionPane.showInputDialog(
                 this, "Set availability:", "Update Volunteer Availability",
