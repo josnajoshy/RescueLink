@@ -12,7 +12,7 @@ public class TESTDB {
         try {
             c = DBCONNECT.ConnectToDB(); // single connection
             if (c != null) {
-                System.out.println("✅ Connected to rescuetable successfully!");
+                System.out.println("Connected to rescuetable successfully!");
 
                 try (Statement stmt = c.createStatement()) {
 
@@ -108,14 +108,14 @@ public class TESTDB {
                     }
 
                 } catch (SQLException e) {
-                    System.err.println("❌ Error executing queries: " + e.getMessage());
+                    System.err.println("Error executing queries: " + e.getMessage());
                 }
 
             } else {
-                System.out.println("❌ Connection failed.");
+                System.out.println("Connection failed.");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Could not connect to database: " + e.getMessage());
+            System.err.println("Could not connect to database: " + e.getMessage());
         } finally {
             // Close connection safely
             DBCONNECT.closeConnection();

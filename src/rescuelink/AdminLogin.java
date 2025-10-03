@@ -5,8 +5,8 @@ import java.awt.*;
 
 public class AdminLogin extends JFrame {
 
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
 
     public AdminLogin() {
         setTitle("Admin Login - RescueLink");

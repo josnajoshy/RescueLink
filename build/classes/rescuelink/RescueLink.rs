@@ -1,1 +1,1 @@
-RescueLink
+rescuetabl.RescueLink

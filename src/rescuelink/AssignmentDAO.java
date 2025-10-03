@@ -3,6 +3,7 @@ package rescuelink;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class AssignmentDAO {
@@ -13,7 +14,7 @@ public class AssignmentDAO {
         try {
             tempCon = DBCONNECT.ConnectToDB(); // Connect to your database
         } catch (SQLException e) {
-            System.err.println("❌ Database connection failed in AssignmentDAO: " + e.getMessage());
+            System.err.println("Database connection failed in AssignmentDAO: " + e.getMessage());
         }
         con = tempCon;
     }
@@ -21,7 +22,7 @@ public class AssignmentDAO {
     // Assign a volunteer to a victim
     public boolean assignVolunteerToVictim(Volunteer volunteer, Victim victim) {
         if (con == null) {
-            System.err.println("❌ No database connection available.");
+            System.err.println("No database connection available.");
             return false;
         }
 
@@ -30,14 +31,18 @@ public class AssignmentDAO {
         try (PreparedStatement pst = con.prepareStatement(query)) {
             pst.setInt(1, volunteer.getVolunteerId());
             pst.setInt(2, victim.getId());
-            pst.setTimestamp(3, java.sql.Timestamp.valueOf(LocalDateTime.now()));
+            System.out.println("Assigning volunteer ID: " + volunteer.getVolunteerId());
+            System.out.println("Assigning victim ID: " + victim.getId());
+
+            pst.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             pst.setBoolean(4, true);
 
             int rows = pst.executeUpdate();
+            System.out.println("Assignment inserted successfully. Rows affected: " + rows);
             return rows > 0;
 
         } catch (SQLException e) {
-            System.err.println("❌ Error inserting assignment: " + e.getMessage());
+            System.err.println("Error inserting assignment: " + e.getMessage());
             return false;
         }
     }

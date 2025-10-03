@@ -12,11 +12,13 @@ public class AlertDAO {
         try {
             con = DBCONNECT.ConnectToDB();
         } catch (SQLException e) {
-            throw new RuntimeException("❌ Database connection failed!", e);
+            throw new RuntimeException("Database connection failed!", e);
         }
     }
 
-    /** Send a new alert */
+    /** Send a new alert
+     * @param alert
+     * @return  */
     public boolean sendAlert(Alert alert) {
         String sql = "INSERT INTO alerts (recipient_id, recipient_type, message, created_at, is_read) VALUES (?, ?, ?, ?, ?)";
 
@@ -31,12 +33,14 @@ public class AlertDAO {
             return rows > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage() + "Something went wrong: ");
             return false;
         }
     }
 
-    /** Get all alerts for a specific user */
+    /** Get all alerts for a specific user
+     * @param user
+     * @return  */
     public List<Alert> getAlertsForUser(User user) {
         List<Alert> alerts = new ArrayList<>();
         String sql = "SELECT * FROM alerts WHERE recipient_id = ? AND recipient_type = ? ORDER BY created_at DESC";
@@ -58,7 +62,8 @@ public class AlertDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+              System.err.println("Something went wrong: " + e.getMessage());
+
         }
 
         return alerts;

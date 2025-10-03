@@ -15,7 +15,7 @@ public class AdminDashboard extends JFrame {
 
     public AdminDashboard() {
         setTitle("Admin Dashboard - ResQLink");
-        setSize(900, 500);
+        setSize(1000, 550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -28,7 +28,7 @@ public class AdminDashboard extends JFrame {
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // make table non-editable
+                return false;
             }
         };
 
@@ -50,7 +50,7 @@ public class AdminDashboard extends JFrame {
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // non-editable
+                return false;
             }
         };
 
@@ -60,44 +60,49 @@ public class AdminDashboard extends JFrame {
         JButton updateVolunteerBtn = new JButton("Update Volunteer Availability");
         updateVolunteerBtn.addActionListener(e -> updateVolunteerAvailability());
 
+        JButton assignBtn = new JButton("Assign Volunteer to Victim");
+        assignBtn.addActionListener(e -> assignSelectedVolunteerToVictim());
+
         JPanel volunteerPanel = new JPanel(new BorderLayout());
+        JPanel volunteerButtonPanel = new JPanel(new FlowLayout());
+        volunteerButtonPanel.add(updateVolunteerBtn);
+        volunteerButtonPanel.add(assignBtn);
+
         volunteerPanel.add(volunteerScroll, BorderLayout.CENTER);
-        volunteerPanel.add(updateVolunteerBtn, BorderLayout.SOUTH);
+        volunteerPanel.add(volunteerButtonPanel, BorderLayout.SOUTH);
 
         tabbedPane.addTab("Volunteers", volunteerPanel);
 
         add(tabbedPane);
 
-        // Load data initially
         loadVictims();
         loadVolunteers();
     }
 
     private void loadVictims() {
-    victimModel.setRowCount(0);
-    try {
-        VictimModule vm = new VictimModule();
-        List<Victim> victims = vm.getAllVictims();
+        victimModel.setRowCount(0);
+        try {
+            VictimModule vm = new VictimModule();
+            List<Victim> victims = vm.getAllVictims();
 
-        for (Victim v : victims) {
-            victimModel.addRow(new Object[]{
-                    v.getId(),
-                    v.getName(),
-                    v.getLocation(),
-                    v.getCondition(),
-                    v.getIncidentType(),
-                    v.getSeverity(),
-                    v.getPeopleAffected(),
-                    v.isImmediateRescue() ? "Yes" : "No",
-                    v.getStatus()
-            });
+            for (Victim v : victims) {
+                victimModel.addRow(new Object[]{
+                        v.getId(),
+                        v.getName(),
+                        v.getLocation(),
+                        v.getCondition(),
+                        v.getIncidentType(),
+                        v.getSeverity(),
+                        v.getPeopleAffected(),
+                        v.isImmediateRescue() ? "Yes" : "No",
+                        v.getStatus()
+                });
+            }
+            vm.closeConnection();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading victims: " + e.getMessage());
         }
-        vm.closeConnection();
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error loading victims: " + e.getMessage());
     }
-}
-
 
     private void loadVolunteers() {
         volunteerModel.setRowCount(0);
@@ -130,20 +135,20 @@ public class AdminDashboard extends JFrame {
                 JOptionPane.QUESTION_MESSAGE, null, statuses, statuses[0]);
 
         if (newStatus != null) {
-    try {
-        VictimModule vm = new VictimModule();
-        boolean success = vm.updateVictimStatus(id, newStatus);
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Victim status updated!");
-            loadVictims();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to update status.");
+            try {
+                VictimModule vm = new VictimModule();
+                boolean success = vm.updateVictimStatus(id, newStatus);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Victim status updated!");
+                    loadVictims();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update status.");
+                }
+                vm.closeConnection();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage());
+            }
         }
-        vm.closeConnection();
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage());
-    }
-}
     }
 
     private void updateVolunteerAvailability() {
@@ -169,6 +174,47 @@ public class AdminDashboard extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to update availability.");
             }
+        }
+    }
+
+    private void assignSelectedVolunteerToVictim() {
+        int volunteerRow = volunteerTable.getSelectedRow();
+        int victimRow = victimTable.getSelectedRow();
+
+        if (volunteerRow == -1 || victimRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select both a volunteer and a victim.");
+            return;
+        }
+
+        Volunteer volunteer = new Volunteer(
+                Integer.parseInt(volunteerModel.getValueAt(volunteerRow, 0).toString()),
+                volunteerModel.getValueAt(volunteerRow, 1).toString(),
+                volunteerModel.getValueAt(volunteerRow, 2).toString(),
+                volunteerModel.getValueAt(volunteerRow, 3).toString(),
+                volunteerModel.getValueAt(volunteerRow, 4).toString(),
+                volunteerModel.getValueAt(volunteerRow, 5).toString().equalsIgnoreCase("Yes"),
+                0, 0
+        );
+
+        Victim victim = new Victim(
+                Integer.parseInt(victimModel.getValueAt(victimRow, 0).toString()),
+                victimModel.getValueAt(victimRow, 1).toString(),
+                victimModel.getValueAt(victimRow, 2).toString(),
+                victimModel.getValueAt(victimRow, 3).toString(),
+                victimModel.getValueAt(victimRow, 4).toString(),
+                victimModel.getValueAt(victimRow, 5).toString(),
+                Integer.parseInt(victimModel.getValueAt(victimRow, 6).toString()),
+                victimModel.getValueAt(victimRow, 7).toString().equalsIgnoreCase("Yes"),
+                victimModel.getValueAt(victimRow, 8).toString()
+        );
+
+        AssignmentService service = new AssignmentService();
+        boolean success = service.assignAndNotify(volunteer, victim);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Volunteer assigned and notified!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to assign volunteer.");
         }
     }
 

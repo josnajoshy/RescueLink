@@ -15,14 +15,16 @@ public class VictimDAO {
         }
     }
 
-    /** Add a new victim */
+    /** Add a new victim
+     * @param victim
+     * @return  */
     public boolean addVictim(Victim victim) {
         String sql = "INSERT INTO victims " +
                 "(name, location, `condition`, incident_type, severity, people_affected, immediate_rescue, status) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, victim.getName());
-            stmt.setString(2, victim.getLocation());
+            stmt.setString(2, victim.getLocation() != null ? victim.getLocation() : "Unknown");
             stmt.setString(3, victim.getCondition());
             stmt.setString(4, victim.getIncidentType());
             stmt.setString(5, victim.getSeverity());
@@ -38,7 +40,8 @@ public class VictimDAO {
         }
     }
 
-    /** Get all victims */
+    /** Get all victims
+     * @return  */
     public ArrayList<Victim> getAllVictims() {
         ArrayList<Victim> victims = new ArrayList<>();
         String sql = "SELECT * FROM victims";
@@ -68,7 +71,9 @@ public class VictimDAO {
         return victims;
     }
 
-    /** Update victim status */
+    /** Update victim status
+     * @param victimId
+     * @return  */
     public boolean updateVictimStatus(int victimId, String status) {
         String sql = "UPDATE victims SET status=? WHERE victim_id=?";
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -82,7 +87,8 @@ public class VictimDAO {
         }
     }
 
-    /** Fetch single victim by ID */
+    /** Fetch single victim by ID
+     * @param victimId */
     public Victim getVictimById(int victimId) {
         String sql = "SELECT * FROM victims WHERE victim_id=?";
         try (PreparedStatement stmt = con.prepareStatement(sql)) {

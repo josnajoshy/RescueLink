@@ -2,6 +2,8 @@ package rescuelink;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class VolunteerForm extends JFrame {
@@ -63,27 +65,30 @@ public class VolunteerForm extends JFrame {
         add(panel);
 
         // ✅ Register volunteer
-        registerButton.addActionListener(e -> {
-            String name = nameField.getText().trim();
-            String location = locationField.getText().trim();
-            String phone = phoneField.getText().trim();
-            String skill = (String) skillDropdown.getSelectedItem(); // ✅ from dropdown
-            boolean available = availabilityBox.isSelected();
-
-            if (name.isEmpty() || location.isEmpty() || phone.isEmpty() || skill == null) {
-                JOptionPane.showMessageDialog(null, "Please fill all fields.");
-                return;
-            }
-
-            Volunteer v = new Volunteer(name, location, phone, skill, available);
-            VolunteerDAO dao = new VolunteerDAO();
-            boolean success = dao.addVolunteer(v);
-
-            if (success) {
-                JOptionPane.showMessageDialog(null, "Volunteer registered successfully.");
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(null, "Registration failed.");
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText().trim();
+                String location = locationField.getText().trim();
+                String phone = phoneField.getText().trim();
+                String skill = (String) skillDropdown.getSelectedItem(); // ✅ from dropdown
+                boolean available = availabilityBox.isSelected();
+                
+                if (name.isEmpty() || location.isEmpty() || phone.isEmpty() || skill == null) {
+                    JOptionPane.showMessageDialog(null, "Please fill all fields.");
+                    return;
+                }
+                
+                Volunteer v = new Volunteer(name, location, phone, skill, available);
+                VolunteerDAO dao = new VolunteerDAO();
+                boolean success = dao.addVolunteer(v);
+                
+                if (success) {
+                    JOptionPane.showMessageDialog(null, "Volunteer registered successfully.");
+                    clearForm();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Registration failed.");
+                }
             }
         });
 

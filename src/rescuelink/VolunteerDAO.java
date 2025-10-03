@@ -12,32 +12,15 @@ public class VolunteerDAO {
         try {
             con = DBCONNECT.ConnectToDB();
         } catch (SQLException e) {
-            throw new RuntimeException("❌ Database connection failed!", e);
+            throw new RuntimeException("Database connection failed!", e);
         }
     }
 
-    /** Add a new volunteer */
-    public boolean addVolunteer(Volunteer v) {
-        String sql = "INSERT INTO Volunteer (name, location, phone_no, availability, skill) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement pst = con.prepareStatement(sql)) {
-            pst.setString(1, v.getName());
-            pst.setString(2, v.getLocation());
-            pst.setString(3, v.getPhoneNo());
-            pst.setString(4, v.isAvailability() ? "Yes" : "No");
-            pst.setString(5, v.getSkill());
-
-            int rows = pst.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /** Get all volunteers with their badges */
+    /** Add a new volunteer *
+     * @return  */
     public List<Volunteer> getVolunteerList() {
         List<Volunteer> volunteers = new ArrayList<>();
-        String sql = "SELECT * FROM Volunteer";
+        String sql = "SELECT * FROM volunteers";
 
         try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -49,7 +32,7 @@ public class VolunteerDAO {
                         rs.getString("location"),
                         rs.getString("phone_no"),
                         rs.getString("skill"),
-                        rs.getString("availability").equalsIgnoreCase("Yes"),
+                        rs.getBoolean("availability"),
                         rs.getInt("reward_points"),
                         rs.getInt("attended_requests")
                 );
@@ -58,7 +41,7 @@ public class VolunteerDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Something went wrong: " + e.getMessage());
         }
 
         return volunteers;
@@ -84,16 +67,18 @@ public class VolunteerDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Something went wrong: " + e.getMessage());
         }
 
         return badges;
     }
 
-    /** Get latest assignment status for a volunteer */
+    /** Get latest assignment status for a volunteer
+     * @param volunteerId
+     * @return  */
     public String getAssignmentStatus(int volunteerId) {
         String status = "No assignment";
-        String sql = "SELECT status FROM Assignment WHERE volunteer_id = ? ORDER BY assigned_at DESC LIMIT 1";
+        String sql = "SELECT status FROM assignments WHERE volunteer_id = ? ORDER BY assigned_at DESC LIMIT 1";
 
         try (PreparedStatement pst = con.prepareStatement(sql)) {
             pst.setInt(1, volunteerId);
@@ -103,23 +88,48 @@ public class VolunteerDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Something went wrong: " + e.getMessage());
         }
 
         return status;
     }
+    
+    public boolean addVolunteer(Volunteer volunteer) {
+    String sql = "INSERT INTO volunteers (name, location, phone_no, skill, availability) VALUES (?, ?, ?, ?, ?)";
 
-    /** Update volunteer availability */
-    public boolean updateAvailability(int volunteerId, boolean available) {
-        String sql = "UPDATE Volunteer SET availability=? WHERE volunteer_id=?";
-        try (PreparedStatement pst = con.prepareStatement(sql)) {
-            pst.setString(1, available ? "Yes" : "No");
-            pst.setInt(2, volunteerId);
-            int rows = pst.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+    try (PreparedStatement pst = con.prepareStatement(sql)) {
+        pst.setString(1, volunteer.getName());
+        pst.setString(2, volunteer.getLocation());
+        pst.setString(3, volunteer.getPhoneNo());
+        pst.setString(4, volunteer.getSkill());
+        pst.setBoolean(5, volunteer.isAvailability());
+
+        int rows = pst.executeUpdate();
+        return rows > 0;
+
+    } catch (SQLException e) {
+        System.err.println(" Failed to add volunteer: " + e.getMessage());
+        return false;
     }
 }
+
+    /** Update volunteer availability
+     * @param volunteerId
+     * @param available
+     * @return  */
+    public boolean updateAvailability(int volunteerId, boolean available) {
+    String sql = "UPDATE volunteers SET availability = ? WHERE volunteer_id = ?";
+    
+    try (PreparedStatement pst = con.prepareStatement(sql)) {
+        pst.setBoolean(1, available); // sends true/false, stored as 1/0 in MySQL
+        pst.setInt(2, volunteerId);
+
+        int rows = pst.executeUpdate();
+        System.out.println("Updated availability for volunteer ID " + volunteerId + " to " + available);
+        return rows > 0;
+
+    } catch (SQLException e) {
+        System.err.println("Error updating availability: " + e.getMessage());
+        return false;
+    }
+}}
