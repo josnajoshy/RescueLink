@@ -1,6 +1,7 @@
 package rescuelink;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
@@ -18,14 +19,41 @@ public class VictimAlerts extends JFrame {
         this.alertDAO = new AlertDAO();
 
         setTitle("My Alerts - " + victim.getName());
-        setSize(600, 300);
+        setSize(800, 400); // wider window for better visibility
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        // Table
+        // Table model
         alertModel = new DefaultTableModel(new String[]{"Message", "Created At", "Read"}, 0);
-        alertTable = new JTable(alertModel);
+        alertTable = new JTable(alertModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        // Set row height and column width
+        alertTable.setRowHeight(60); // taller rows for wrapped text
+        alertTable.getColumnModel().getColumn(0).setPreferredWidth(500); // wider message column
+
+        // Custom renderer for wrapped text in message column
+        alertTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                JTextArea textArea = new JTextArea(value != null ? value.toString() : "");
+                textArea.setLineWrap(true);
+                textArea.setWrapStyleWord(true);
+                textArea.setOpaque(true);
+                textArea.setFont(table.getFont());
+                textArea.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                textArea.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+                return textArea;
+            }
+        });
+
         JScrollPane scrollPane = new JScrollPane(alertTable);
 
         // Refresh Button
@@ -44,6 +72,7 @@ public class VictimAlerts extends JFrame {
         // Auto-refresh every 10 seconds
         Timer timer = new Timer(true);
         timer.schedule(new TimerTask() {
+            @Override
             public void run() {
                 SwingUtilities.invokeLater(VictimAlerts.this::loadAlerts);
             }
@@ -53,11 +82,14 @@ public class VictimAlerts extends JFrame {
     private void loadAlerts() {
         alertModel.setRowCount(0);
         List<Alert> alerts = alertDAO.getAlertsForUser(victim);
+        if (alerts.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No alerts yet!");
+        }
 
         for (Alert a : alerts) {
             alertModel.addRow(new Object[]{
                     a.getMessage(),
-                    a.getCreatedAt(),
+                    a.getSentAt(),
                     a.isRead() ? "Yes" : "No"
             });
         }

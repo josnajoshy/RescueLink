@@ -8,57 +8,58 @@ public class VictimGUI extends JFrame {
 
     private final JTextField nameField;
     private final JTextField locationField;
-
-    private final JTextField conditionField;
-    private final JTextField peopleField;
+    private final JTextField phoneField;
+    private final JComboBox<String> conditionCombo;
     private final JComboBox<String> incidentCombo;
     private final JComboBox<String> severityCombo;
+    private final JTextField peopleField;
     private final JCheckBox immediateCheck;
     private final JButton reportButton;
     private final JButton alertsButton;
 
     private final VictimModule vm;
-    private Victim lastReportedVictim; // store latest victim for alerts
+    private Victim lastReportedVictim;
 
-    public VictimGUI() throws SQLException {
-        vm = new VictimModule();
+    public VictimGUI(String phone, VictimModule vm1) throws SQLException {
+        this.vm = vm1;
 
         setTitle("Report Victim Incident");
-        setSize(900, 350);
+        setSize(900, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         // Input Panel
-        JPanel inputPanel = new JPanel(new GridLayout(4, 6, 10, 10));
+        JPanel inputPanel = new JPanel(new GridLayout(5, 6, 10, 10));
 
-        // Labels
         inputPanel.add(new JLabel("Name:"));
         inputPanel.add(new JLabel("Location:"));
+        inputPanel.add(new JLabel("Phone:"));
         inputPanel.add(new JLabel("Condition:"));
         inputPanel.add(new JLabel("Incident Type:"));
         inputPanel.add(new JLabel("Severity:"));
         inputPanel.add(new JLabel("People Affected:"));
         inputPanel.add(new JLabel("Status:"));
 
-        // Input Fields
         nameField = new JTextField();
         locationField = new JTextField();
-        conditionField = new JTextField();
+        phoneField = new JTextField(phone); // pre-filled from login
+
+        conditionCombo = new JComboBox<>(new String[]{"Stable", "Critical"});
         incidentCombo = new JComboBox<>(new String[]{
                 "Flood", "Fire", "Accident", "Landslide", "Earthquake",
-                "Building Collapse", "Cyclone", "Tsunami", "Other"
+                "Cyclone", "Building Collapse", "Medical Emergency", "Other"
         });
         severityCombo = new JComboBox<>(new String[]{"Mild", "Moderate", "Severe"});
         peopleField = new JTextField();
 
-        // Status is not editable, always defaults to "Pending"
         JTextField statusField = new JTextField("Pending");
         statusField.setEditable(false);
 
         inputPanel.add(nameField);
         inputPanel.add(locationField);
-        inputPanel.add(conditionField);
+        inputPanel.add(phoneField);
+        inputPanel.add(conditionCombo);
         inputPanel.add(incidentCombo);
         inputPanel.add(severityCombo);
         inputPanel.add(peopleField);
@@ -85,12 +86,13 @@ public class VictimGUI extends JFrame {
     private void reportIncident() {
         String name = nameField.getText().trim();
         String location = locationField.getText().trim();
-        String condition = conditionField.getText().trim();
+        String phone = phoneField.getText().trim();
+        String condition = (String) conditionCombo.getSelectedItem();
         String incident = (String) incidentCombo.getSelectedItem();
         String severity = (String) severityCombo.getSelectedItem();
         int peopleAffected;
 
-        if (name.isEmpty() || location.isEmpty() || condition.isEmpty() || peopleField.getText().trim().isEmpty()) {
+        if (name.isEmpty() || location.isEmpty() || phone.isEmpty() || peopleField.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill all fields.");
             return;
         }
@@ -103,13 +105,10 @@ public class VictimGUI extends JFrame {
         }
 
         boolean immediate = immediateCheck.isSelected();
-
-        // Default status = "Pending"
         String status = "Pending";
 
-        // ✅ Create victim with actual form values
         Victim v = new Victim(
-                0,              // victim_id (auto-increment, so pass 0 or ignore in DAO)
+                0,
                 name,
                 location,
                 condition,
@@ -117,20 +116,26 @@ public class VictimGUI extends JFrame {
                 severity,
                 peopleAffected,
                 immediate,
-                status
+                status,
+                phone
         );
 
-        vm.addVictim(v);
-        lastReportedVictim = v; // save for alerts panel
-
-        JOptionPane.showMessageDialog(this, "Incident reported successfully!");
-        clearFields();
+        try {
+            vm.addVictim(v);
+            lastReportedVictim = v;
+            JOptionPane.showMessageDialog(this, "Incident reported successfully!");
+            clearFields();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error inserting victim: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private void clearFields() {
         nameField.setText("");
         locationField.setText("");
-        conditionField.setText("");
+        // phoneField stays pre-filled
+        conditionCombo.setSelectedIndex(0);
         incidentCombo.setSelectedIndex(0);
         severityCombo.setSelectedIndex(0);
         peopleField.setText("");
@@ -144,15 +149,5 @@ public class VictimGUI extends JFrame {
         }
         VictimAlerts alertsPanel = new VictimAlerts(lastReportedVictim);
         alertsPanel.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new VictimGUI().setVisible(true);
-            } catch (SQLException ex) {
-                System.getLogger(VictimGUI.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
-        });
     }
 }

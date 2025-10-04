@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
+import java.sql.ResultSet;
 
 public class AssignmentDAO {
     private final Connection con;
@@ -46,4 +49,31 @@ public class AssignmentDAO {
             return false;
         }
     }
+    public List<Victim> getAssignedVictims(int volunteerId) {
+    List<Victim> victims = new ArrayList<>();
+    String sql = "SELECT v.* FROM victims v JOIN assignments a ON v.id = a.victim_id WHERE a.volunteer_id = ?";
+
+    try (Connection con = DBCONNECT.ConnectToDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, volunteerId);
+        try (ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                victims.add(new Victim(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("location"),
+                    rs.getString("condition"),
+                    rs.getString("incident_type"),
+                    rs.getString("severity"),
+                    rs.getInt("people_affected"),
+                    rs.getBoolean("immediate_rescue"),
+                    rs.getString("status")
+                ));
+            }
+        }
+    } catch (SQLException e) {
+    }
+    return victims;
+}
 }

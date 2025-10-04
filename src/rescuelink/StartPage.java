@@ -37,19 +37,35 @@ public class StartPage extends JFrame {
 
         // Actions
         victimBtn.addActionListener(e -> {
-            try {
-                new VictimGUI().setVisible(true);
-            } catch (SQLException ex) {
-                System.getLogger(StartPage.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            JTextField phoneField = new JTextField();
+            int result = JOptionPane.showConfirmDialog(
+                    this,
+                    phoneField,
+                    "Enter your phone number",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (result == JOptionPane.OK_OPTION) {
+                String phone = phoneField.getText().trim();
+                if (!phone.isEmpty()) {
+                    try {
+                        VictimModule vm = new VictimModule(); // assuming this connects to DB
+                        new VictimGUI(phone, vm).setVisible(true);
+                        dispose();
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this, "Error loading victim interface.");
+                        ex.printStackTrace();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Phone number cannot be empty.");
+                }
             }
-            dispose();
         });
 
         volunteerBtn.addActionListener(e -> {
-    new VolunteerForm().setVisible(true);
-    dispose(); // closes StartPage window if you want
-});
-
+            new VolunteerForm().setVisible(true);
+            dispose();
+        });
 
         adminBtn.addActionListener(e -> {
             new AdminDashboard().setVisible(true);
