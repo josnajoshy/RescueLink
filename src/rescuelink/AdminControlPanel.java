@@ -132,28 +132,16 @@ public class AdminControlPanel extends JFrame {
 
         // View all victims
         viewVictimsBtn.addActionListener(e -> {
-            List<Victim> victims = victimDAO.getAllVictims();
-            StringBuilder sb = new StringBuilder("All Victims:\n");
-            for (Victim v : victims) {
-                sb.append("ID: ").append(v.getId())
-                  .append(", Name: ").append(v.getName())
-                  .append(", Location: ").append(v.getLocation())
-                  .append(", Status: ").append(v.getStatus()).append("\n");
-            }
-            JOptionPane.showMessageDialog(this, sb.toString());
+            AdminDashboard dashboard = new AdminDashboard();
+            dashboard.setVisible(true);
+            dashboard.getTabbedPane().setSelectedIndex(0); // Victims tab
         });
 
         // View all volunteers
         viewVolunteersBtn.addActionListener(e -> {
-            List<Volunteer> volunteers = volunteerDAO.getVolunteerList();
-            StringBuilder sb = new StringBuilder("All Volunteers:\n");
-            for (Volunteer v : volunteers) {
-                sb.append("ID: ").append(v.getVolunteerId())
-                  .append(", Name: ").append(v.getName())
-                  .append(", Location: ").append(v.getLocation())
-                  .append(", Skill: ").append(v.getSkill()).append("\n");
-            }
-            JOptionPane.showMessageDialog(this, sb.toString());
+            AdminDashboard dashboard = new AdminDashboard();
+            dashboard.setVisible(true);
+            dashboard.getTabbedPane().setSelectedIndex(1); // Volunteers tab
         });
 
         // Send alert to volunteer

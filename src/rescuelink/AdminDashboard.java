@@ -74,6 +74,19 @@ public class AdminDashboard extends JFrame {
         tabbedPane.addTab("Volunteers", volunteerPanel);
 
         add(tabbedPane);
+        
+        // Inside the AdminDashboard constructor, after setting up tabbedPane and before loadVictims()/loadVolunteers()
+        JButton backBtn = new JButton("Back to Control Panel");
+        backBtn.addActionListener(e -> {
+            new AdminControlPanel().setVisible(true);
+            dispose(); // close the dashboard
+        });
+
+        // Add the back button at the bottom of the JFrame
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(backBtn);
+        add(bottomPanel, BorderLayout.SOUTH);
+
 
         loadVictims();
         loadVolunteers();
@@ -216,6 +229,11 @@ public class AdminDashboard extends JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "Failed to assign volunteer.");
         }
+    }
+
+    // ✅ Missing method inserted here
+    public JTabbedPane getTabbedPane() {
+        return tabbedPane;
     }
 
     public static void main(String[] args) {
