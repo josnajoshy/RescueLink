@@ -8,11 +8,10 @@ public class VolunteerDashboard extends JFrame {
     private Volunteer loggedInVolunteer;
     private final VolunteerDAO volunteerDAO = new VolunteerDAO();
     private final AlertDAO alertDAO = new AlertDAO();
-    private final AssignmentDAO assignmentDAO = new AssignmentDAO();
 
     private final JTextArea alertArea = new JTextArea();
-    private final JTextArea victimArea = new JTextArea();
     private final JPanel badgePanel = new JPanel(new GridLayout(0, 1, 5, 5));
+    private final JLabel rescueStatusLabel = new JLabel();
 
     public VolunteerDashboard() {
         setTitle("Volunteer Login");
@@ -50,39 +49,47 @@ public class VolunteerDashboard extends JFrame {
 
     private void showDashboard() {
         getContentPane().removeAll();
-        setTitle("Welcome, " + loggedInVolunteer.getName());
+        setTitle("Volunteer Dashboard - " + loggedInVolunteer.getName());
         setSize(800, 600);
         setLayout(new BorderLayout(10, 10));
 
-        // Alerts Section
+        // Rescue Status
+        rescueStatusLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        rescueStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        loadRescueStatus();
+
+        // Alerts
         alertArea.setEditable(false);
         alertArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        JScrollPane alertScroll = new JScrollPane(alertArea);
+        alertArea.setBorder(BorderFactory.createTitledBorder("Alerts"));
         loadAlerts();
 
-        // Assigned Victims Section
-        victimArea.setEditable(false);
-        victimArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        JScrollPane victimScroll = new JScrollPane(victimArea);
-        loadAssignedVictims();
-
-        // Badges Section
+        // Badges
         badgePanel.setBorder(BorderFactory.createTitledBorder("Badges Earned"));
         loadBadges();
 
         // Layout Panels
-        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        centerPanel.add(victimScroll);
-        centerPanel.add(alertScroll);
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(rescueStatusLabel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(new JScrollPane(alertArea), BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.add(badgePanel, BorderLayout.CENTER);
 
+        add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
         revalidate();
         repaint();
+    }
+
+    private void loadRescueStatus() {
+        // This method should return a count of victims with status = 'Rescued'
+        int rescuedCount = volunteerDAO.getRescuedVictimCount(loggedInVolunteer.getVolunteerId());
+        rescueStatusLabel.setText("Rescue Operations Completed: " + rescuedCount);
     }
 
     private void loadAlerts() {
@@ -93,22 +100,6 @@ public class VolunteerDashboard extends JFrame {
         } else {
             for (Alert a : alerts) {
                 alertArea.append("[" + a.getSentAt() + "] " + a.getMessage() + "\n\n");
-            }
-        }
-    }
-
-    private void loadAssignedVictims() {
-        victimArea.setText("");
-        List<Victim> victims = assignmentDAO.getAssignedVictims(loggedInVolunteer.getVolunteerId());
-        if (victims.isEmpty()) {
-            victimArea.setText("No victims assigned yet.");
-        } else {
-            for (Victim v : victims) {
-                victimArea.append(
-                    (v.getName() != null ? v.getName() : "Unknown") + " | " +
-                    (v.getLocation() != null ? v.getLocation() : "Unknown") + " | " +
-                    v.getCondition() + " | " + v.getStatus() + "\n"
-                );
             }
         }
     }
