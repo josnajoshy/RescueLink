@@ -68,7 +68,7 @@ public class StartPage extends JFrame {
         });
 
         adminBtn.addActionListener(e -> {
-            new AdminDashboard().setVisible(true);
+            new AdminLoginScreen().setVisible(true); // ✅ now goes to login screen
             dispose();
         });
     }

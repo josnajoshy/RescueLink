@@ -17,7 +17,9 @@ public class Alert {
         this.sentAt = sentAt;
         this.isRead = isRead;
     }
-
+public Alert(User recipient, String message, LocalDateTime sentAt, boolean isRead) {
+    this(0, recipient, message, sentAt, isRead);
+}
     // Constructor for new alert to be sent
     public Alert(User recipient, String message) {
         this(0, recipient, message, LocalDateTime.now(), false);

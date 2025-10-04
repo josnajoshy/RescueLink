@@ -64,4 +64,8 @@ public class Victim extends User {
                 " | Immediate Rescue: " + immediateRescue +
                 " | Status: " + status);
     }
+    @Override
+public String toString() {
+    return "ID: " + id + " | " + name + " (" + location + ")";
+}
 }
