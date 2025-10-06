@@ -23,62 +23,82 @@ public class VictimGUI extends JFrame {
     public VictimGUI(String phone, VictimModule vm1) throws SQLException {
         this.vm = vm1;
 
-        setTitle("Report Victim Incident");
-        setSize(900, 400);
+        setTitle("Report Victim Incident - ResQLink");
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(15, 15));
 
-        // Input Panel
-        JPanel inputPanel = new JPanel(new GridLayout(5, 6, 10, 10));
+        // =========================
+        // HEADER
+        // =========================
+        JLabel title = new JLabel("Report Victim Incident", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        add(title, BorderLayout.NORTH);
 
-        inputPanel.add(new JLabel("Name:"));
-        inputPanel.add(new JLabel("Location:"));
-        inputPanel.add(new JLabel("Phone:"));
-        inputPanel.add(new JLabel("Condition:"));
-        inputPanel.add(new JLabel("Incident Type:"));
-        inputPanel.add(new JLabel("Severity:"));
-        inputPanel.add(new JLabel("People Affected:"));
-        inputPanel.add(new JLabel("Status:"));
+        // =========================
+        // FORM PANEL (GridLayout)
+        // =========================
+        JPanel formPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
+        // Labels and Fields
+        formPanel.add(new JLabel("Name:"));
         nameField = new JTextField();
-        locationField = new JTextField();
-        phoneField = new JTextField(phone); // pre-filled from login
+        formPanel.add(nameField);
 
+        formPanel.add(new JLabel("Location:"));
+        locationField = new JTextField();
+        formPanel.add(locationField);
+
+        formPanel.add(new JLabel("Phone:"));
+        phoneField = new JTextField(phone); // pre-filled
+        phoneField.setEditable(false);
+        formPanel.add(phoneField);
+
+        formPanel.add(new JLabel("Condition:"));
         conditionCombo = new JComboBox<>(new String[]{"Stable", "Critical"});
+        formPanel.add(conditionCombo);
+
+        formPanel.add(new JLabel("Incident Type:"));
         incidentCombo = new JComboBox<>(new String[]{
                 "Flood", "Fire", "Accident", "Landslide", "Earthquake",
                 "Cyclone", "Building Collapse", "Medical Emergency", "Other"
         });
-        severityCombo = new JComboBox<>(new String[]{"Mild", "Moderate", "Severe"});
-        peopleField = new JTextField();
+        formPanel.add(incidentCombo);
 
+        formPanel.add(new JLabel("Severity:"));
+        severityCombo = new JComboBox<>(new String[]{"Mild", "Moderate", "Severe"});
+        formPanel.add(severityCombo);
+
+        formPanel.add(new JLabel("People Affected:"));
+        peopleField = new JTextField();
+        formPanel.add(peopleField);
+
+        formPanel.add(new JLabel("Immediate Rescue Needed:"));
+        immediateCheck = new JCheckBox("Yes");
+        formPanel.add(immediateCheck);
+
+        formPanel.add(new JLabel("Status:"));
         JTextField statusField = new JTextField("Pending");
         statusField.setEditable(false);
+        formPanel.add(statusField);
 
-        inputPanel.add(nameField);
-        inputPanel.add(locationField);
-        inputPanel.add(phoneField);
-        inputPanel.add(conditionCombo);
-        inputPanel.add(incidentCombo);
-        inputPanel.add(severityCombo);
-        inputPanel.add(peopleField);
-        inputPanel.add(statusField);
+        add(formPanel, BorderLayout.CENTER);
 
-        add(inputPanel, BorderLayout.CENTER);
-
-        // Bottom Panel
-        JPanel bottomPanel = new JPanel();
-        immediateCheck = new JCheckBox("Immediate Rescue");
+        // =========================
+        // BUTTON PANEL
+        // =========================
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         reportButton = new JButton("Report Incident");
         alertsButton = new JButton("View My Alerts");
+        buttonPanel.add(reportButton);
+        buttonPanel.add(alertsButton);
+        add(buttonPanel, BorderLayout.SOUTH);
 
-        bottomPanel.add(immediateCheck);
-        bottomPanel.add(reportButton);
-        bottomPanel.add(alertsButton);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        // Button Actions
+        // =========================
+        // BUTTON ACTIONS
+        // =========================
         reportButton.addActionListener(e -> reportIncident());
         alertsButton.addActionListener(e -> openAlerts());
     }
@@ -134,7 +154,6 @@ public class VictimGUI extends JFrame {
     private void clearFields() {
         nameField.setText("");
         locationField.setText("");
-        // phoneField stays pre-filled
         conditionCombo.setSelectedIndex(0);
         incidentCombo.setSelectedIndex(0);
         severityCombo.setSelectedIndex(0);
@@ -149,5 +168,16 @@ public class VictimGUI extends JFrame {
         }
         VictimAlerts alertsPanel = new VictimAlerts(lastReportedVictim);
         alertsPanel.setVisible(true);
+    }
+
+    public static void main(String[] args) throws SQLException {
+        VictimModule vm = new VictimModule();
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new VictimGUI("9876543210", vm).setVisible(true);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

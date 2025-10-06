@@ -7,9 +7,9 @@ public class Victim extends User {
     private int peopleAffected;
     private boolean immediateRescue;
     private String status; // Pending, In Progress, Rescued, etc.
-    private String phone;  // Added phone number
+    private String phone;  // Optional phone number
 
-    // Constructor matching DB schema
+    // Constructor matching DB schema (without phone)
     public Victim(int id, String name, String location,
                   String condition, String incidentType,
                   String severity, int peopleAffected,
@@ -23,7 +23,7 @@ public class Victim extends User {
         this.status = (status == null || status.isEmpty()) ? "Pending" : status;
     }
 
-    // Overloaded constructor (when phone is added later)
+    // Overloaded constructor including phone
     public Victim(int id, String name, String location,
                   String condition, String incidentType,
                   String severity, int peopleAffected,
@@ -50,7 +50,7 @@ public class Victim extends User {
     public void setStatus(String status) { this.status = status; }
     public void setPhone(String phone) { this.phone = phone; }
 
-    // --- Polymorphism: Display Info ---
+    // --- Display for debugging or admin views ---
     @Override
     public void displayInfo() {
         System.out.println("Victim ID: " + getId() +
@@ -64,8 +64,10 @@ public class Victim extends User {
                 " | Immediate Rescue: " + immediateRescue +
                 " | Status: " + status);
     }
+
+    // --- For dropdowns, logs, or debug ---
     @Override
-public String toString() {
-    return "ID: " + id + " | " + name + " (" + location + ")";
-}
+    public String toString() {
+        return "ID: " + getId() + " | " + getName() + " (" + getLocation() + ")";
+    }
 }

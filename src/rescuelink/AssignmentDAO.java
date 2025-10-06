@@ -8,7 +8,14 @@ import java.util.List;
 public class AssignmentDAO {
     private final AlertDAO alertDAO = new AlertDAO();
 
+    /**
+     * Assign a volunteer to a victim and trigger alerts.
+     * Ensures the volunteer exists in the DB before assignment.
+     */
     public boolean assignVolunteerToVictim(Volunteer volunteer, Victim victim) {
+        // Ensure volunteer record exists (avoids FK issues)
+        ensureVolunteerExists(volunteer);
+
         String query = "INSERT INTO assignments (volunteer_id, victim_id, assigned_at, is_active) VALUES (?, ?, ?, ?)";
 
         try (Connection con = DBCONNECT.ConnectToDB();
@@ -34,23 +41,58 @@ public class AssignmentDAO {
         return false;
     }
 
+    /**
+     * Ensures the volunteer exists in the database to prevent foreign key errors.
+     * Uses INSERT IGNORE to skip if already present.
+     */
+    public boolean ensureVolunteerExists(Volunteer v) {
+        String sql = """
+            INSERT IGNORE INTO volunteers (volunteer_id, name, location, phone_no, skill, availability)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection con = DBCONNECT.ConnectToDB();
+             PreparedStatement pst = con.prepareStatement(sql)) {
+
+            pst.setInt(1, v.getVolunteerId());
+            pst.setString(2, v.getName());
+            pst.setString(3, v.getLocation());
+            pst.setString(4, v.getPhoneNo());
+            pst.setString(5, v.getSkill());
+            pst.setBoolean(6, v.isAvailability());
+
+            pst.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to ensure volunteer exists: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Sends alerts to both the volunteer and the victim when assignment occurs.
+     */
     private void sendAlerts(Volunteer volunteer, Victim victim) {
         LocalDateTime now = LocalDateTime.now();
 
         Alert volunteerAlert = new Alert(volunteer,
-            String.format("You have been assigned to assist victim %s at %s.",
-                victim.getName(), victim.getLocation()),
-            now, false);
+                String.format("You have been assigned to assist victim %s at %s.",
+                        victim.getName(), victim.getLocation()),
+                now, false);
 
         Alert victimAlert = new Alert(victim,
-            String.format("Volunteer %s has been assigned to help you. Please stay safe.",
-                volunteer.getName()),
-            now, false);
+                String.format("Volunteer %s has been assigned to help you. Please stay safe.",
+                        volunteer.getName()),
+                now, false);
 
         alertDAO.sendAlert(volunteerAlert);
         alertDAO.sendAlert(victimAlert);
     }
 
+    /**
+     * Retrieves all victims currently assigned to a given volunteer.
+     */
     public List<Victim> getAssignedVictims(int volunteerId) {
         List<Victim> victims = new ArrayList<>();
         String sql = "SELECT v.* FROM victims v JOIN assignments a ON v.id = a.victim_id WHERE a.volunteer_id = ?";
@@ -63,15 +105,15 @@ public class AssignmentDAO {
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     Victim victim = new Victim(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("location"),
-                        rs.getString("condition"),
-                        rs.getString("incident_type"),
-                        rs.getString("severity"),
-                        rs.getInt("people_affected"),
-                        rs.getBoolean("immediate_rescue"),
-                        rs.getString("status")
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("location"),
+                            rs.getString("condition"),
+                            rs.getString("incident_type"),
+                            rs.getString("severity"),
+                            rs.getInt("people_affected"),
+                            rs.getBoolean("immediate_rescue"),
+                            rs.getString("status")
                     );
                     victims.add(victim);
                 }

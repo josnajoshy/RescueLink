@@ -37,9 +37,19 @@ public class VolunteerDashboard extends JFrame {
         loginBtn.addActionListener(e -> {
             String name = nameField.getText().trim();
             String phone = phoneField.getText().trim();
+
             loggedInVolunteer = volunteerDAO.login(name, phone);
 
             if (loggedInVolunteer != null) {
+                // ✅ Ensure badges are refreshed from DB
+                loggedInVolunteer.setBadges(
+                        volunteerDAO.getVolunteerList().stream()
+                                .filter(v -> v.getId() == loggedInVolunteer.getId())
+                                .findFirst()
+                                .map(Volunteer::getBadges)
+                                .orElse(loggedInVolunteer.getBadges())
+                );
+
                 showDashboard();
             } else {
                 JOptionPane.showMessageDialog(this, "Login failed. Check name and phone.");
@@ -87,7 +97,6 @@ public class VolunteerDashboard extends JFrame {
     }
 
     private void loadRescueStatus() {
-        // This method should return a count of victims with status = 'Rescued'
         int rescuedCount = volunteerDAO.getRescuedVictimCount(loggedInVolunteer.getVolunteerId());
         rescueStatusLabel.setText("Rescue Operations Completed: " + rescuedCount);
     }
@@ -107,13 +116,19 @@ public class VolunteerDashboard extends JFrame {
     private void loadBadges() {
         badgePanel.removeAll();
         List<Badge> badges = loggedInVolunteer.getBadges();
-        if (badges.isEmpty()) {
+
+        if (badges == null || badges.isEmpty()) {
             badgePanel.add(new JLabel("No badges earned yet."));
         } else {
             for (Badge b : badges) {
-                badgePanel.add(new JLabel("🏅 " + b.getName() + ": " + b.getDescription()));
+                JLabel badgeLabel = new JLabel("🏅 " + b.getName() + " — " + b.getDescription());
+                badgeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                badgePanel.add(badgeLabel);
             }
         }
+
+        badgePanel.revalidate();
+        badgePanel.repaint();
     }
 
     public static void main(String[] args) {

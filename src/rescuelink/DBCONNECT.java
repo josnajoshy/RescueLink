@@ -8,7 +8,7 @@ public class DBCONNECT {
 
     private static final String URL = "jdbc:mysql://localhost:3306/rescuelinkdb";
     private static final String USER = "root";
-    private static final String PASSWORD = "josna@223979"; 
+    private static final String PASSWORD = "cat@129drofregI"; 
 
     private static Connection con = null;
 
