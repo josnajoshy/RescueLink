@@ -13,7 +13,6 @@ public class StartPage extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
-        // --- Header ---
         JLabel title = new JLabel("RescueLink", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 28));
         add(title, BorderLayout.NORTH);
@@ -38,9 +37,6 @@ public class StartPage extends JFrame {
         buttonPanel.add(rescueBtn);
 
         add(buttonPanel, BorderLayout.SOUTH);
-
-        
-
        
         victimBtn.addActionListener(e -> {
             JTextField phoneField = new JTextField();
