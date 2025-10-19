@@ -7,7 +7,7 @@ import java.util.List;
 public class AlertDAO {
 
     public AlertDAO() {
-        // No shared connection field—use per-method connections
+        
     }
 
     /** Send a new alert

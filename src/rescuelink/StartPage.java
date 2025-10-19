@@ -8,7 +8,7 @@ public class StartPage extends JFrame {
 
     public StartPage() {
         setTitle("RescueLink - Start Page");
-        setSize(400, 400); // taller to fit 5 buttons
+        setSize(400, 400); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
@@ -22,14 +22,14 @@ public class StartPage extends JFrame {
         tagline.setFont(new Font("Arial", Font.ITALIC, 14));
         add(tagline, BorderLayout.CENTER);
 
-        // --- Buttons ---
-        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10)); // now 5 buttons total
+        
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10)); 
 
         JButton victimBtn = new JButton("Sign in as Victim");
         JButton volunteerBtn = new JButton("Sign in as Volunteer");
         JButton adminBtn = new JButton("Sign in as Admin");
         JButton donationBtn = new JButton("Donate / View Donations");
-        JButton rescueBtn = new JButton("Sign in as Rescue Team"); // ✅ added
+        JButton rescueBtn = new JButton("Sign in as Rescue Team"); 
 
         buttonPanel.add(victimBtn);
         buttonPanel.add(volunteerBtn);
@@ -39,9 +39,9 @@ public class StartPage extends JFrame {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // --- Button Actions ---
+        
 
-        // Victim login (with phone prompt)
+       
         victimBtn.addActionListener(e -> {
             JTextField phoneField = new JTextField();
             int result = JOptionPane.showConfirmDialog(

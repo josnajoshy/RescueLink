@@ -15,7 +15,7 @@ public class AssignmentService {
         boolean assigned = assignmentDAO.assignVolunteerToVictim(volunteer, victim);
         if (!assigned) return false;
 
-        // Step 2: Generate alert for volunteer
+        
         String volunteerMessage = String.format("""
                                                 You have been assigned to a victim.
                                                 Victim Name: %s
@@ -25,14 +25,14 @@ public class AssignmentService {
                 victim.getName(),
                 victim.getLocation(),
                 victim.getCondition(),
-                victim.getPeopleAffected()   // ✅ corrected
+                victim.getPeopleAffected()   
         );
 
         Alert volunteerAlert = new Alert(volunteer, volunteerMessage);
         alertDAO.sendAlert(volunteerAlert);
         System.out.println("Alert sent to volunteer ID: " + volunteer.getVolunteerId());
 
-        // Step 3: Generate alert for victim
+        
         String victimMessage;
         victimMessage = String.format("""
                                       A volunteer has been assigned to help you.

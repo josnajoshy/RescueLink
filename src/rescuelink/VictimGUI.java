@@ -15,7 +15,7 @@ public class VictimGUI extends JFrame {
     private final JTextField peopleField;
     private final JCheckBox immediateCheck;
     private final JButton reportButton;
-    private final JButton alertsButton;
+    
 
     private final VictimModule vm;
     private Victim lastReportedVictim;
@@ -91,16 +91,16 @@ public class VictimGUI extends JFrame {
         // =========================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         reportButton = new JButton("Report Incident");
-        alertsButton = new JButton("View My Alerts");
+        
         buttonPanel.add(reportButton);
-        buttonPanel.add(alertsButton);
+        
         add(buttonPanel, BorderLayout.SOUTH);
 
         // =========================
         // BUTTON ACTIONS
         // =========================
         reportButton.addActionListener(e -> reportIncident());
-        alertsButton.addActionListener(e -> openAlerts());
+        
     }
 
     private void reportIncident() {
