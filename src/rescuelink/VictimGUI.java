@@ -28,21 +28,13 @@ public class VictimGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(15, 15));
-
-        // =========================
-        // HEADER
-        // =========================
         JLabel title = new JLabel("Report Victim Incident", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         add(title, BorderLayout.NORTH);
 
-        // =========================
-        // FORM PANEL (GridLayout)
-        // =========================
         JPanel formPanel = new JPanel(new GridLayout(9, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        // Labels and Fields
         formPanel.add(new JLabel("Name:"));
         nameField = new JTextField();
         formPanel.add(nameField);
@@ -86,9 +78,6 @@ public class VictimGUI extends JFrame {
 
         add(formPanel, BorderLayout.CENTER);
 
-        // =========================
-        // BUTTON PANEL
-        // =========================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         reportButton = new JButton("Report Incident");
         
@@ -96,9 +85,6 @@ public class VictimGUI extends JFrame {
         
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // =========================
-        // BUTTON ACTIONS
-        // =========================
         reportButton.addActionListener(e -> reportIncident());
         
     }
