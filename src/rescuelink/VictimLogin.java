@@ -51,7 +51,7 @@ public class VictimLogin extends JFrame {
 
         if (victim == null) {
             try {
-                // First-time login → open registration GUI
+          
                 JOptionPane.showMessageDialog(this, "First-time login detected. Please fill your details.");
                 VictimGUI registrationGUI = new VictimGUI(phone, vm); // pass phone & module
                 registrationGUI.setVisible(true);
@@ -59,7 +59,7 @@ public class VictimLogin extends JFrame {
                 System.getLogger(VictimLogin.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
             }
         } else {
-            // Existing victim → open dashboard
+ 
             VictimDashboard dashboard = new VictimDashboard(victim);
             dashboard.setVisible(true);
         }
